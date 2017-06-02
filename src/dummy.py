@@ -24,7 +24,7 @@ def main():
             backend.move(move)
             logging.debug('make move: ' + move)
     except:
-        logging.debug('Error!', exc_info=True, stack_info=True)
+        logging.error('Error!', exc_info=True, stack_info=True)
 
 
 if __name__ == "__main__":

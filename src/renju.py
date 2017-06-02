@@ -3,7 +3,6 @@ import enum
 import itertools
 import matplotlib
 import numpy
-import string
 import sys
 import time
 import traceback
@@ -33,6 +32,7 @@ class Player(enum.IntEnum):
 class Game:
     width, height = 15, 15
     shape = (width, height)
+    line_length = 5
 
     def __init__(self):
         self._result = Player.NONE
@@ -41,8 +41,24 @@ class Game:
         self._positions = list()
 
     def __bool__(self):
-        return self.result() == Player.NONE \
-            and len(self._positions) < self.width * self.height
+        return self.result() == Player.NONE and \
+            len(self._positions) < self.width * self.height
+
+    def player():
+        return self._player
+
+    def result(self):
+        return self._result
+
+    def board(self):
+        return self._board
+
+    def positions(self, player=Player.NONE):
+        if not player:
+            return self._positions
+
+        begin = 0 if player == Player.BLACK else 1
+        return self._positions[begin::2]
 
     def dumps(self):
         return ' '.join(map(util.to_move, self._positions))
@@ -54,17 +70,6 @@ class Game:
             game.move(pos)
         return game
 
-    def result(self):
-        return self._result
-
-    def player(self):
-        return self._player
-
-    def board(self):
-        return self._board.copy()
-
-    def positions(self):
-        return self._positions.copy()
 
     def is_posible_move(self, pos):
         return 0 <= pos[0] < self.height \
@@ -76,14 +81,19 @@ class Game:
 
         self._positions.append(pos)
         self._board[pos] = self._player
+
+        if not self._result and util.check(self._board, pos):
+            self._result = self._player
+            return
+
         self._player = self._player.another()
 
 def number_shift(n):
     if n >= 100:
-        return (0.35, 0.15)
+        return (0.32, 0.15)
     if n >= 10:
-        return (0.25, 0.15)
-    return (0.12, 0.15)
+        return (0.22, 0.15)
+    return (0.10, 0.15)
 
 class PyPlotUI:
     def __init__(self, black='black', white='white'):
@@ -99,7 +109,7 @@ class PyPlotUI:
         self._ax.set_ylim(-1, Game.height)
 
         self._ax.set_xticks(numpy.arange(0, Game.width))
-        self._ax.set_xticklabels(string.ascii_lowercase[:Game.width])
+        self._ax.set_xticklabels(util.POS_TO_LETTER)
 
         self._ax.set_yticks(numpy.arange(0, Game.height))
         self._ax.set_yticklabels(numpy.arange(1, Game.height + 1))
@@ -133,7 +143,7 @@ class PyPlotUI:
         self._board.show()
 
 
-    def update(self, game, probs=numpy.zeros(Game.shape)):
+    def update(self, game, probs):
         board = game.board()
 
         black_positions = util.list_positions(board, Player.BLACK)
@@ -142,21 +152,19 @@ class PyPlotUI:
         white_positions = util.list_positions(board, Player.WHITE)
         self._white.set_offsets(white_positions[:, (1, 0)])
 
-        colors = ['black', 'white']
         self._ax.texts = []
         for n, (i, j) in enumerate(game.positions(), 1):
             shift = number_shift(n)
             self._ax.text(
-
                 j - shift[0],
                 i - shift[1],
                 str(n),
-                color = colors[n % 2],
-                fontsize = 11,
+                color = 'white' if n % 2 else 'black',
+                fontsize = 10,
                 zorder = 4
             )
 
-        self._probs.set_data(probs / 2 * max(probs.max(), 1e-9))
+        self._probs.set_data(probs / 2 * max(probs.max(), 1e-6))
 
         self._board.canvas.draw()
 
@@ -185,7 +193,6 @@ def run_test(black, white, timeout=None):
     try:
         for game, probs in loop(game, black, white, timeout):
             ui.update(game, probs)
-            time.sleep(1.0) # test pause
 
     except:
         _, e, tb = sys.exc_info()
