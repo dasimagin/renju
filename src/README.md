@@ -23,7 +23,7 @@ keras
 Если версия указана явно, то используется самая свежая. Возможно использовать конкретный интерпретатор.
 Лучше всего поставить себе пакет anaconda. И убедиться в работоспособности вашего кода.
 ```
-conda create --copy --file requirements.txt.txt --mkdir --prefix /home/dasimagin/envs/TEST 
+conda create --copy --file requirements.txt --mkdir --prefix /home/dasimagin/envs/TEST 
 ```
 
 Если для запуска агента вам нужны какие-то дополнительне шаги, 
