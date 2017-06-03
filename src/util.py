@@ -36,7 +36,7 @@ def check_horizontal(board, pos):
     length += sequence_length(
         board,
         itertools.repeat(i),
-        range(j + 1, min(j + renju.Game.line_length, renju.Game.height)),
+        range(j + 1, min(j + renju.Game.line_length, renju.Game.width)),
         player
     )
 
@@ -47,7 +47,7 @@ def check_horizontal(board, pos):
         player
     )
 
-    return length > renju.Game.line_length
+    return length >= renju.Game.line_length
 
 def check_vertical(board, pos):
     player = board[pos]
@@ -59,7 +59,7 @@ def check_vertical(board, pos):
 
     length += sequence_length(
         board,
-        range(i + 1, min(i + renju.Game.line_length, renju.Game.width)),
+        range(i + 1, min(i + renju.Game.line_length, renju.Game.height)),
         itertools.repeat(j),
         player
     )
@@ -83,8 +83,8 @@ def check_main_diagonal(board, pos):
 
     length += sequence_length(
         board,
-        range(i + 1, min(i + renju.Game.line_length, renju.Game.width)),
-        range(j + 1, min(j + renju.Game.line_length, renju.Game.height)),
+        range(i + 1, min(i + renju.Game.line_length, renju.Game.height)),
+        range(j + 1, min(j + renju.Game.line_length, renju.Game.width)),
         player
     )
 
@@ -108,13 +108,13 @@ def check_side_diagonal(board, pos):
     length += sequence_length(
         board,
         range(i - 1, max(i - renju.Game.line_length, -1), -1),
-        range(j + 1, min(j + renju.Game.line_length, renju.Game.height)),
+        range(j + 1, min(j + renju.Game.line_length, renju.Game.width)),
         player
     )
 
     length += sequence_length(
         board,
-        range(i + 1, min(i + renju.Game.line_length, renju.Game.width)),
+        range(i + 1, min(i + renju.Game.line_length, renju.Game.height)),
         range(j - 1, max(j - renju.Game.line_length, -1), -1),
         player
     )

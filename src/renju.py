@@ -1,6 +1,7 @@
 import concurrent
 import enum
 import itertools
+import logging
 import matplotlib
 import numpy
 import sys
@@ -44,7 +45,10 @@ class Game:
         return self.result() == Player.NONE and \
             len(self._positions) < self.width * self.height
 
-    def player():
+    def move_n(self):
+        return len(self._positions)
+
+    def player(self):
         return self._player
 
     def result(self):
@@ -201,3 +205,18 @@ def run_test(black, white, timeout=None):
         return game.player().another()
 
     return game.result()
+
+def run(black, white, max_move_n=60, timeout=10):
+    game = Game()
+
+    try:
+        for game, _ in loop(game, black, white, timeout):
+            logging.debug(game.dumps() + '\n' + str(game.board()))
+            if game.move_n() >= max_move_n:
+                break
+
+    except:
+        logging.error('Error!', exc_info=True, stack_info=True)
+        return game.player().another(), game.dumps()
+
+    return game.result(), game.dumps()

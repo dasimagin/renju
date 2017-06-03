@@ -29,12 +29,13 @@ class HumanAgent(Agent):
         return probs
 
 class BackendAgent(Agent):
-    def __init__(self, backend, name='BackendAgent'):
+    def __init__(self, backend, name='BackendAgent', **kvargs):
         self._name = name
         self._backend = subprocess.Popen(
             backend.split(),
             stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE
+            stdout=subprocess.PIPE,
+            **kvargs
         )
 
     def name(self):
