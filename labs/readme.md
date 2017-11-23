@@ -10,3 +10,9 @@ Here you can find a series of laboratory works (in jupyter notebook format), whi
  5. Binary linear classification
  6. Gradient descent
  7. Stochastic gradient descent
+
+##### 2. Multilayer perceptron
+ 1. Linear multi-classification problem
+ 2. Universal approximation theorem
+ 3. Backpropagation
+ 4. Autoencoders
