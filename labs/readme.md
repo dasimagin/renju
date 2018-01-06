@@ -23,3 +23,7 @@ Here you can find a series of laboratory works (jupyter notebook format), which 
 3. Regularization
 4. Data augmentation
 5. Modern architecture
+
+##### 4. Classic reinforcement learning
+
+##### 5. AlphaGo
