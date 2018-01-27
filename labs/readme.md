@@ -25,5 +25,11 @@ Here you can find a series of laboratory works (jupyter notebook format), which 
 5. Modern architecture
 
 ##### 4. Classic reinforcement learning
+1. Multi-armed bandit problem
+2. Markov decison process
+3. Dynamic programming
+4. Temporal difference
 
 ##### 5. AlphaGo
+1. AlphaGo
+2. AlphaGo Zero
