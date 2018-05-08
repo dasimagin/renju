@@ -10,3 +10,14 @@ At this moment (5 Jan 2018) there is one more paper [Mastering the game of Go wi
 
 #### Goals
 This project is purely educational. So, students are invited to learn technologies, ideas and implementation details of AlphaGo bot and then implement own one for Renju game.
+
+#### Requirements
+Your solution should freely run on ubuntu 14+ and Python 3.4 or be compiled with clang (avoid completely new language constructions for compatibility). You also should provide instructions on how to use your application, overview of parameters and code examples of running. A more detailed list of points below:
+
+1. Specify all requirements and version of packages:
+ * All python packages
+ * All additional deb packages
+2. Datasets and additional data that you use
+3. prepare – script that uploads all essential data, e.g. model parameters.
+4. train – script that train your model from scratch.
+5. demo – demo game agent vs human
