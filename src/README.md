@@ -1,47 +1,40 @@
-## Соревнование агентов
+## Competition
 
-### Правила
-1. Соревнование проводится в виде турнира. Каждый играет с каждым N партий за белых и черных.
-2. За победу начисляется 3 балла, ничья стоит 1 балл.
-3. В случае ошибки времени исполнения игроку засчитывается поражение.
-4. Время на ход ограничено сверху T.
-5. Игра не может длиться более M ходов.
-6. Для определения победителя могут проводиться дополнительные партии.
+### Rules
+1. Each player plays N games for white and black with each opponent.
+2. For the victory is awarded 3 points, a draw costs 1 point.
+3. In case of an error in the execution time, the player is counted a defeat.
+4. Agent has no more that T seconds per one move.
+5. The game can't last more than M moves.
 
-N = 3 партии, T = 10 секунд, M = 60 ходов
+**N = 10 games, T = 1 second, M = 60 moves**
+
+### Preparing
+For competition you need provide only one executable file, which contains all your dependencies and you model weights.
+You agent will be runned on Ubuntu 14.04 machine.
+
+#### How to make executable file
+If you write your agent on python you may use package [pyinstaller](https://pyinstaller.readthedocs.io/).
+Let's we have some small file **source_example.txt** and program **example.py**
+```python3
+import numpy
+import scipy
+import tensorflow
+
+# For fucking keras wankers
+import scipy._lib.messagestream
+import keras
 
 
-### Подготовка среды
-Агенты будут запускаться в virtualenv, созданной с помощью [anaconda](https://www.continuum.io/DOWNLOADS).
-Поэтому необходимо указать зависимости в файле requirements.txt.
+with open('destination_example.txt') as lines:
+    print(lines.read())
 ```
-python=3.5.0
-numpy=1.12.1
-tensorflow=1.0.1
-keras
+So, you just need input
 ```
-Если версия указана явно, то используется самая свежая. Возможно использовать конкретный интерпретатор.
-Лучше всего поставить себе пакет anaconda. И убедиться в работоспособности вашего кода.
+pyinstaller --add-data="source_example.txt:destination_example.txt" -F example.py
 ```
-conda create --copy --file requirements.txt --mkdir --prefix /home/dasimagin/envs/TEST 
-```
+Flag **F** forces to create only one file.
+Option **add-data** says that file **source_example.txt** need to be included in our executable as **destination_example.txt**.
 
-Если для запуска агента вам нужны какие-то дополнительне шаги, 
-то их исполнение должно запускаться простой командой make. Для сборки будет предоставлен компилятора gcc 4.8.4.
-
-### Устройство агента
-Агент будет запускаться в виде отдельного python процесса.
-Комуникация со средой будет вестись через потоки sys.stdout и sys.stdin, которые через pipe подключены к мастер-процессу.
-Как следствие, ваша программа не должна делать какой-либо стандартный ввод вывод.
-Для логирования используйте запись в файл.
-
-Вся работа проходит всего через две функции,
-```
-backend.wait_for_game_update()
-backend.move(m)
-```
-первая делает блокирующий вызов и возвращает объект игры. Вторая делает ход, где m - строка в формате 'h10'.
-
-Пример агента, который делает случайные ходы можно найти [здесь](https://github.com/dasimagin/renju/blob/master/src/dummy.py).
-
-
+#### Agent interface
+Comming soon...
