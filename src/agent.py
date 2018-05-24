@@ -1,12 +1,12 @@
 import abc
 import numpy
 import subprocess
-import util
+
 
 class Agent(metaclass=abc.ABCMeta):
     @abc.abstractmethod
-    def policy(game):
-        '''Return probabilty matrix of possible actions'''
+    def move(game):
+        '''Return next move'''
 
     @abc.abstractmethod
     def name():
@@ -19,20 +19,14 @@ class HumanAgent(Agent):
     def name(self):
         return self._name
 
-    def policy(self, game):
-        move = input()
-        pos = util.to_pos(move)
-
-        probs = numpy.zeros(game.shape)
-        probs[pos] = 1.0
-
-        return probs
+    def move(self, game):
+        return input()
 
 class BackendAgent(Agent):
-    def __init__(self, backend, name='BackendAgent', **kvargs):
+    def __init__(self, cmd, name, **kvargs):
         self._name = name
         self._backend = subprocess.Popen(
-            backend.split(),
+            cmd.split(),
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             **kvargs
@@ -42,19 +36,14 @@ class BackendAgent(Agent):
         return self._name
 
     def send_game_to_backend(self, game):
-        data = game.dumps().encode()
-        self._backend.stdin.write(data + b'\n')
+        data = game.dumps()
+        self._backend.stdin.write(data.encode() + b'\n')
         self._backend.stdin.flush()
 
     def wait_for_backend_move(self):
         data = self._backend.stdout.readline().rstrip()
         return data.decode()
 
-    def policy(self, game):
+    def move(self, game):
         self.send_game_to_backend(game)
-        pos = util.to_pos(self.wait_for_backend_move())
-
-        probs = numpy.zeros(game.shape)
-        probs[pos] = 1.0
-
-        return probs
+        return self.wait_for_backend_move()

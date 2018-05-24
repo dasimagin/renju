@@ -2,9 +2,19 @@ import renju
 import sys
 
 def wait_for_game_update():
-    data = sys.stdin.buffer.readline().rstrip()
-    return renju.Game.loads(data.decode())
+    if not sys.stdin.closed:
+        game_dumps = sys.stdin.readline()
 
-def move(move):
-    sys.stdout.buffer.write(move.encode() + b'\n')
+        if game_dumps:
+            return renju.Game.loads(game_dumps)
+
+    return None
+
+def set_move(move):
+    if sys.stdout.closed:
+        return False
+
+    sys.stdout.write(move + '\n')
     sys.stdout.flush()
+
+    return True

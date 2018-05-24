@@ -1,28 +1,39 @@
 import logging
+import os
 import random
 
 import backend
 import renju
-import util
 
 
 def choose_random_move(board):
-    positions = util.list_positions(board, renju.Player.NONE)
-    return util.to_move(random.choice(positions))
+    positions = renju.list_positions(board, renju.Player.NONE)
+    return renju.to_move(random.choice(positions))
+
+LOG_FORMAT = '%(levelname)s:%(asctime)s: dummy-{0}: %(message)s'.format(os.getpid())
 
 def main():
-    logging.basicConfig(filename='dummy.log', level=logging.DEBUG)
+    pid = os.getpid()
+    logging.basicConfig(format=LOG_FORMAT, level=logging.DEBUG)
     logging.debug("Start dummy backend...")
 
     try:
         while True:
             logging.debug("Wait for game update...")
             game = backend.wait_for_game_update()
-            logging.debug('Board:\n' + str(game.board()))
 
+            if not game:
+                logging.debug("Game is over!")
+                return
+
+            logging.debug('Game: %s', game.dumps())
             move = choose_random_move(game.board())
-            backend.move(move)
-            logging.debug('make move: ' + move)
+
+            if not backend.set_move(move):
+                logging.error("Impossible set move!")
+                return
+
+            logging.debug('Random move: %s', move)
     except:
         logging.error('Error!', exc_info=True, stack_info=True)
 

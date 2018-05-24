@@ -1,13 +1,140 @@
-import concurrent
+import concurrent.futures
 import enum
 import itertools
 import logging
-import matplotlib
 import numpy
 import sys
 import time
 import traceback
-import util
+
+
+POS_TO_LETTER = 'abcdefghjklmnop'
+LETTER_TO_POS = {letter: pos for pos, letter in enumerate(POS_TO_LETTER)}
+
+def to_move(pos):
+    return POS_TO_LETTER[pos[1]] + str(pos[0] + 1)
+
+def to_pos(move):
+    return int(move[1:]) - 1, LETTER_TO_POS[move[0]]
+
+def list_positions(board, player):
+    return numpy.vstack(numpy.nonzero(board == player)).T
+
+def sequence_length(board, I, J, value):
+    length = 0
+
+    for i, j in zip(I, J):
+        if board[i, j] != value:
+            break
+        length += 1
+
+    return length
+
+
+def check_horizontal(board, pos):
+    player = board[pos]
+    if not player:
+        return False
+
+    i, j = pos
+    length = 1
+
+    length += sequence_length(
+        board,
+        itertools.repeat(i),
+        range(j + 1, min(j + Game.line_length, Game.width)),
+        player
+    )
+
+    length += sequence_length(
+        board,
+        itertools.repeat(i),
+        range(j - 1, max(j - Game.line_length, -1), -1),
+        player
+    )
+
+    return length >= Game.line_length
+
+def check_vertical(board, pos):
+    player = board[pos]
+    if not player:
+        return False
+
+    i, j = pos
+    length = 1
+
+    length += sequence_length(
+        board,
+        range(i + 1, min(i + Game.line_length, Game.height)),
+        itertools.repeat(j),
+        player
+    )
+
+    length += sequence_length(
+        board,
+        range(i - 1, max(i - Game.line_length, -1), -1),
+        itertools.repeat(j),
+        player
+    )
+
+    return length >= Game.line_length
+
+def check_main_diagonal(board, pos):
+    player = board[pos]
+    if not player:
+        return False
+
+    i, j = pos
+    length = 1
+
+    length += sequence_length(
+        board,
+        range(i + 1, min(i + Game.line_length, Game.height)),
+        range(j + 1, min(j + Game.line_length, Game.width)),
+        player
+    )
+
+    length += sequence_length(
+        board,
+        range(i - 1, max(i - Game.line_length, -1), -1),
+        range(j - 1, max(j - Game.line_length, -1), -1),
+        player
+    )
+
+    return length >= Game.line_length
+
+def check_side_diagonal(board, pos):
+    player = board[pos]
+    if not player:
+        return False
+
+    i, j = pos
+    length = 1
+
+    length += sequence_length(
+        board,
+        range(i - 1, max(i - Game.line_length, -1), -1),
+        range(j + 1, min(j + Game.line_length, Game.width)),
+        player
+    )
+
+    length += sequence_length(
+        board,
+        range(i + 1, min(i + Game.line_length, Game.height)),
+        range(j - 1, max(j - Game.line_length, -1), -1),
+        player
+    )
+
+    return length >= Game.line_length
+
+def check(board, pos):
+    if not board[pos]:
+        return False
+
+    return check_vertical(board, pos) \
+        or check_horizontal(board, pos) \
+        or check_main_diagonal(board, pos) \
+        or check_side_diagonal(board, pos)
 
 
 class Player(enum.IntEnum):
@@ -65,12 +192,12 @@ class Game:
         return self._positions[begin::2]
 
     def dumps(self):
-        return ' '.join(map(util.to_move, self._positions))
+        return ' '.join(map(to_move, self._positions))
 
     @staticmethod
     def loads(dump):
         game = Game()
-        for pos in map(util.to_pos, dump.split()):
+        for pos in map(to_pos, dump.split()):
             game.move(pos)
         return game
 
@@ -86,134 +213,113 @@ class Game:
         self._positions.append(pos)
         self._board[pos] = self._player
 
-        if not self._result and util.check(self._board, pos):
+        if not self._result and check(self._board, pos):
             self._result = self._player
             return
 
         self._player = self._player.another()
 
-def number_shift(n):
-    if n >= 100:
-        return (0.32, 0.15)
-    if n >= 10:
-        return (0.22, 0.15)
-    return (0.10, 0.15)
+# def number_shift(n):
+#     if n >= 100:
+#         return (0.32, 0.15)
+#     if n >= 10:
+#         return (0.22, 0.15)
+#     return (0.10, 0.15)
+#
+# class PyPlotUI:
+#     def __init__(self, black='black', white='white'):
+#         matplotlib.pyplot.ion()
+#         self._board = matplotlib.pyplot.figure(figsize=(8, 8))
+#
+#         self._ax = self._board.add_subplot(111)
+#         self._ax.set_navigate(False)
+#
+#         self._ax.set_title('{black} vs {white}'.format(black=black, white=white))
+#
+#         self._ax.set_xlim(-1, Game.width)
+#         self._ax.set_ylim(-1, Game.height)
+#
+#         self._ax.set_xticks(numpy.arange(0, Game.width))
+#         self._ax.set_xticklabels(util.POS_TO_LETTER)
+#
+#         self._ax.set_yticks(numpy.arange(0, Game.height))
+#         self._ax.set_yticklabels(numpy.arange(1, Game.height + 1))
+#
+#         self._ax.grid(zorder=2)
+#
+#         self._black= self._ax.scatter(
+#             (),(),
+#             color = 'black',
+#             s = 500,
+#             edgecolors = 'black',
+#             zorder = 3
+#         )
+#         self._white = self._ax.scatter(
+#             (),(),
+#             color = 'white',
+#             s = 500,
+#             edgecolors = 'black',
+#             zorder = 3
+#         )
+#
+#         self._probs = self._ax.imshow(
+#             numpy.zeros(Game.shape),
+#             cmap = 'Reds',
+#             interpolation = 'none',
+#             vmin = 0.0,
+#             vmax = 1.0,
+#             zorder = 1
+#         )
+#
+#         self._board.show()
+#
+#
+#     def update(self, game, probs):
+#         board = game.board()
+#
+#         black_positions = util.list_positions(board, Player.BLACK)
+#         self._black.set_offsets(black_positions[:, (1, 0)])
+#
+#         white_positions = util.list_positions(board, Player.WHITE)
+#         self._white.set_offsets(white_positions[:, (1, 0)])
+#
+#         self._ax.texts = []
+#         for n, (i, j) in enumerate(game.positions(), 1):
+#             shift = number_shift(n)
+#             self._ax.text(
+#                 j - shift[0],
+#                 i - shift[1],
+#                 str(n),
+#                 color = 'white' if n % 2 else 'black',
+#                 fontsize = 10,
+#                 zorder = 4
+#             )
+#
+#         self._probs.set_data(probs / 2 * max(probs.max(), 1e-6))
+#
+#         self._board.canvas.draw()
+#
+#         return self
 
-class PyPlotUI:
-    def __init__(self, black='black', white='white'):
-        matplotlib.pyplot.ion()
-        self._board = matplotlib.pyplot.figure(figsize=(8, 8))
-
-        self._ax = self._board.add_subplot(111)
-        self._ax.set_navigate(False)
-
-        self._ax.set_title('{black} vs {white}'.format(black=black, white=white))
-
-        self._ax.set_xlim(-1, Game.width)
-        self._ax.set_ylim(-1, Game.height)
-
-        self._ax.set_xticks(numpy.arange(0, Game.width))
-        self._ax.set_xticklabels(util.POS_TO_LETTER)
-
-        self._ax.set_yticks(numpy.arange(0, Game.height))
-        self._ax.set_yticklabels(numpy.arange(1, Game.height + 1))
-
-        self._ax.grid(zorder=2)
-
-        self._black= self._ax.scatter(
-            (),(),
-            color = 'black',
-            s = 500,
-            edgecolors = 'black',
-            zorder = 3
-        )
-        self._white = self._ax.scatter(
-            (),(),
-            color = 'white',
-            s = 500,
-            edgecolors = 'black',
-            zorder = 3
-        )
-
-        self._probs = self._ax.imshow(
-            numpy.zeros(Game.shape),
-            cmap = 'Reds',
-            interpolation = 'none',
-            vmin = 0.0,
-            vmax = 1.0,
-            zorder = 1
-        )
-
-        self._board.show()
-
-
-    def update(self, game, probs):
-        board = game.board()
-
-        black_positions = util.list_positions(board, Player.BLACK)
-        self._black.set_offsets(black_positions[:, (1, 0)])
-
-        white_positions = util.list_positions(board, Player.WHITE)
-        self._white.set_offsets(white_positions[:, (1, 0)])
-
-        self._ax.texts = []
-        for n, (i, j) in enumerate(game.positions(), 1):
-            shift = number_shift(n)
-            self._ax.text(
-                j - shift[0],
-                i - shift[1],
-                str(n),
-                color = 'white' if n % 2 else 'black',
-                fontsize = 10,
-                zorder = 4
-            )
-
-        self._probs.set_data(probs / 2 * max(probs.max(), 1e-6))
-
-        self._board.canvas.draw()
-
-        return self
-
-def loop(game, black, white, timeout=None):
+def loop(game, black, white, max_move_n=Game.width*Game.height, timeout=None):
     with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-        yield game, numpy.zeros(game.shape)
-
         for agent in itertools.cycle([black, white]):
-            if not game:
+            if not game or game.move_n() >= max_move_n:
                 break
 
-            future = executor.submit(lambda game: agent.policy(game), game)
-            probs = future.result(timeout=timeout)
-
-            pos = numpy.unravel_index(probs.argmax(), game.shape)
+            future = executor.submit(lambda game: agent.move(game), game)
+            pos = to_pos(future.result(timeout=timeout))
             game.move(pos)
 
-            yield game, probs
+            yield game
 
-def run_test(black, white, timeout=None):
-    game = Game()
-    ui = PyPlotUI(black.name(), white.name())
 
-    try:
-        for game, probs in loop(game, black, white, timeout):
-            ui.update(game, probs)
-
-    except:
-        _, e, tb = sys.exc_info()
-        print(e)
-        traceback.print_tb(tb)
-        return game.player().another()
-
-    return game.result()
-
-def run(black, white, max_move_n=60, timeout=10):
+def run(black, white, max_move_n=60, timeout=5):
     game = Game()
 
     try:
-        for game, _ in loop(game, black, white, timeout):
-            logging.debug(game.dumps() + '\n' + str(game.board()))
-            if game.move_n() >= max_move_n:
-                break
+        for game in loop(game, black, white, max_move_n=max_move_n, timeout=timeout):
+            logging.debug(game.dumps())
 
     except:
         logging.error('Error!', exc_info=True, stack_info=True)
