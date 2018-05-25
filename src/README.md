@@ -6,8 +6,9 @@
 3. In case of an error in the execution time, the player is counted a defeat.
 4. Agent has no more that T seconds per one move.
 5. The game can't last more than M moves.
+6. Initialization time I.
 
-**N = 10 games, T = 1 second, M = 60 moves**
+**N = 5 games, T = 15 second, M = 80 moves I = 30**
 
 ### Preparing
 For competition you need provide only one executable file, which contains all your dependencies and you model weights.
