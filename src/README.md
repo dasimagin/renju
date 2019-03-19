@@ -12,12 +12,13 @@
 
 ### Preparing
 For competition you need provide only one executable file, which contains all your dependencies and you model weights. If you expect some __not specific__ package at host machine, please, contact me.
-You agent will be runned on Ubuntu 16.04 (Xenial) machine:
+You agent will be runned on Ubuntu 16.04 (Xenial) machine with Tesla V100 GPU:
 * Nvidia 396.44 + CUDA 9.0.176-1
 * Python 3.5.2
 * Tensorflow 1.12
 * Pytorch 1.0.1
 * Keras 2.2.4
+
 
 #### How to make executable file
 If you write your agent on python you may use package [pyinstaller](https://pyinstaller.readthedocs.io/).
