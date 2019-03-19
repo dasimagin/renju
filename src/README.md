@@ -23,22 +23,29 @@ You agent will be runned on Ubuntu 16.04 (Xenial) machine:
 If you write your agent on python you may use package [pyinstaller](https://pyinstaller.readthedocs.io/).
 Let's we have some small file **source_example.txt** and program **example.py**
 ```python3
+
+# Some default packages
 import numpy
 import scipy
-import tensorflow
 
-# For fucking keras wankers
+# Deep learning
+import tensorflow
+import torch
+
+# Some specific import for Keras
 import scipy._lib.messagestream
 import keras
 
-
+# Use outer file!
 with open('destination_example.txt') as lines:
     print(lines.read())
 ```
-So, you just need input
+So, you just need input 
 ```
+# We add source_example.txt at result binary!
 pyinstaller --add-data="source_example.txt:destination_example.txt" -F example.py
 ```
+
 Flag **F** forces to create only one file.
 Option **add-data** says that file **source_example.txt** need to be included in our executable as **destination_example.txt**.
 
