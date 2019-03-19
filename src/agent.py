@@ -2,15 +2,16 @@ import abc
 import numpy
 import subprocess
 
-
 class Agent(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def move(game):
         '''Return next move'''
+        raise exception.NotImplementedError
 
     @abc.abstractmethod
     def name():
         '''return name of agent'''
+        raise exception.NotImplementedError
 
 class HumanAgent(Agent):
     def __init__(self, name='Human'):

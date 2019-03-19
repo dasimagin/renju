@@ -3,17 +3,17 @@ import os
 import random
 
 import backend
+import numpy
 import renju
-
 
 def choose_random_move(board):
     positions = renju.list_positions(board, renju.Player.NONE)
     return renju.to_move(random.choice(positions))
 
-LOG_FORMAT = '%(levelname)s:%(asctime)s: dummy-{0}: %(message)s'.format(os.getpid())
-
 def main():
     pid = os.getpid()
+    LOG_FORMAT = f'{pid}:%(levelname)s:%(asctime)s: %(message)s'
+
     logging.basicConfig(format=LOG_FORMAT, level=logging.DEBUG)
     logging.debug("Start dummy backend...")
 
@@ -26,7 +26,7 @@ def main():
                 logging.debug("Game is over!")
                 return
 
-            logging.debug('Game: %s', game.dumps())
+            logging.debug('Game: [%s]', game.dumps())
             move = choose_random_move(game.board())
 
             if not backend.set_move(move):
@@ -34,6 +34,7 @@ def main():
                 return
 
             logging.debug('Random move: %s', move)
+
     except:
         logging.error('Error!', exc_info=True, stack_info=True)
 
