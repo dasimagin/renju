@@ -1,18 +1,23 @@
 ## Competition
 
 ### Rules
-1. Each player plays N games for white and black with each opponent.
+1. Each player plays **N** games for white and black with each opponent.
 2. For the victory is awarded 3 points, a draw costs 1 point.
 3. In case of an error in the execution time, the player is counted a defeat.
-4. Agent has no more that T seconds per one move.
-5. The game can't last more than M moves.
-6. Initialization time I.
+4. Agent has no more that **T** seconds per one move.
+5. The game can't last more than **M** moves.
+6. Initialization time **I**.
 
-**N = 5 games, T = 15 second, M = 80 moves I = 30**
+**N = 5 games, T = 3 second, M = 80 moves I = 45**
 
 ### Preparing
-For competition you need provide only one executable file, which contains all your dependencies and you model weights.
-You agent will be runned on Ubuntu 14.04 machine.
+For competition you need provide only one executable file, which contains all your dependencies and you model weights. If you expect some __not specific__ package at host machine, please, contact me.
+You agent will be runned on Ubuntu 16.04 (Xenial) machine:
+* Nvidia 396.44 + CUDA 9.0.176-1
+* Python 3.5.2
+* Tensorflow 1.12
+* Pytorch 1.0.1
+* Keras 2.2.4
 
 #### How to make executable file
 If you write your agent on python you may use package [pyinstaller](https://pyinstaller.readthedocs.io/).
