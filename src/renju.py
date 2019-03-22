@@ -228,88 +228,6 @@ class Game:
 
         self._player = self._player.another()
 
-def number_shift(n):
-    if n >= 100:
-        return (0.32, 0.15)
-    if n >= 10:
-        return (0.22, 0.15)
-    return (0.10, 0.15)
-
-class PyPlotUI:
-    def __init__(self, black='black', white='white'):
-        matplotlib.pyplot.ion()
-        self._board = matplotlib.pyplot.figure(figsize=(8, 8))
-
-        self._ax = self._board.add_subplot(111)
-        self._ax.set_navigate(False)
-
-        self._ax.set_title('{black} vs {white}'.format(black=black, white=white))
-
-        self._ax.set_xlim(-1, Game.width)
-        self._ax.set_ylim(-1, Game.height)
-
-        self._ax.set_xticks(numpy.arange(0, Game.width))
-        self._ax.set_xticklabels(POS_TO_LETTER)
-
-        self._ax.set_yticks(numpy.arange(0, Game.height))
-        self._ax.set_yticklabels(numpy.arange(1, Game.height + 1))
-
-        self._ax.grid(zorder=2)
-
-        self._black= self._ax.scatter(
-            (),(),
-            color = 'black',
-            s = 500,
-            edgecolors = 'black',
-            zorder = 3
-        )
-        self._white = self._ax.scatter(
-            (),(),
-            color = 'white',
-            s = 500,
-            edgecolors = 'black',
-            zorder = 3
-        )
-
-        self._probs = self._ax.imshow(
-            numpy.zeros(Game.shape),
-            cmap = 'Reds',
-            interpolation = 'none',
-            vmin = 0.0,
-            vmax = 1.0,
-            zorder = 1
-        )
-
-        self._board.show()
-
-
-    def update(self, game, probs):
-        board = game.board()
-
-        black_positions = list_positions(board, Player.BLACK)
-        self._black.set_offsets(black_positions[:, (1, 0)])
-
-        white_positions = list_positions(board, Player.WHITE)
-        self._white.set_offsets(white_positions[:, (1, 0)])
-
-        self._ax.texts = []
-        for n, (i, j) in enumerate(game.positions(), 1):
-            shift = number_shift(n)
-            self._ax.text(
-                j - shift[0],
-                i - shift[1],
-                str(n),
-                color = 'white' if n % 2 else 'black',
-                fontsize = 10,
-                zorder = 4
-            )
-
-        self._probs.set_data(probs / max(probs.max(), 1e-6))
-
-        self._board.canvas.draw()
-
-        return self
-
 MAX_MOVE_N = Game.width * Game.height
 
 def loop(game, black, white, max_move_n=MAX_MOVE_N , timeout=None):
@@ -332,7 +250,6 @@ def run(black, white, max_move_n=60, timeout=3):
         for game in loop(game, black, white, max_move_n=max_move_n, timeout=timeout):
             # logging.debug(game.dumps())
             pass
-
 
     except:
         logging.error('Error!', exc_info=True, stack_info=True)

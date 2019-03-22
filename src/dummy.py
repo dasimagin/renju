@@ -12,7 +12,7 @@ def choose_random_move(board):
 
 def main():
     pid = os.getpid()
-    LOG_FORMAT = f'{pid}:%(levelname)s:%(asctime)s: %(message)s'
+    LOG_FORMAT = str(pid) + ':%(levelname)s:%(asctime)s: %(message)s'
 
     logging.basicConfig(format=LOG_FORMAT, level=logging.DEBUG)
     logging.debug("Start dummy backend...")
